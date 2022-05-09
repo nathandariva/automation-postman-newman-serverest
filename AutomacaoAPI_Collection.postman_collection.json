@@ -1,0 +1,277 @@
+{
+	"info": {
+		"_postman_id": "82a6f3a7-96fe-4635-a0d0-0d5a7d7311e2",
+		"name": "Nathan_AutomacaoAPI_Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "CadastrarUsuarios",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"  pm.response.to.have.status(201);\r",
+							"  var req = JSON.parse(pm.request.body.raw);\r",
+							"    pm.environment.set(\"email\", req.email);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"nome\": \"Nathan {{$randomNameSuffix}} \",\r\n  \"email\": \"nathan_{{$randomPhoneNumber}}@teste.com.br\",\r\n  \"password\": \"teste123!@\",\r\n  \"administrador\": \"true\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://serverest.dev/usuarios"
+			},
+			"response": []
+		},
+		{
+			"name": "RealizarLogin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Login com sucesso -  200\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"teste123!@\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://serverest.dev/login"
+			},
+			"response": []
+		},
+		{
+			"name": "CadastrarProdutos",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Cadastrado com sucesso -  201\", function () {\r",
+							"  pm.response.to.have.status(201);\r",
+							"  var resp = pm.response.json();\r",
+							"    pm.environment.set(\"_id\", resp._id);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.sendRequest({\r",
+							"    url: 'https://serverest.dev/login',\r",
+							"    method: 'POST',\r",
+							"    header: {\r",
+							"        'content-type':'application/json'\r",
+							"    },\r",
+							"    body: {\r",
+							"        mode: 'raw',\r",
+							"        raw: JSON.stringify({ \r",
+							"            email: pm.variables.get(\"email\"),\r",
+							"            password: 'teste123!@'})\r",
+							"    }\r",
+							"}, function (err, res) {\r",
+							"    token = res.json().authorization;\r",
+							"    pm.environment.set(\"token\", token.slice(7));\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{token}}"
+					}
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im5hdGhhbl9JSUlAdGVzdGUuY29tLmJyIiwicGFzc3dvcmQiOiJ0ZXN0ZTEyMyFAIiwiaWF0IjoxNjUyMDI2NTYzLCJleHAiOjE2NTIwMjcxNjN9.L0Zvql6oh-_U-1nWuMi48FJg5Pl_OfVOL1WVkuqwxj4",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"nome\": \"Mercedes Audi Testes {{$randomColor}}\",\r\n  \"preco\": {{$randomInt}},\r\n  \"descricao\": \"Carro\",\r\n  \"quantidade\": {{$randomInt}}\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://serverest.dev/produtos/"
+			},
+			"response": []
+		},
+		{
+			"name": "EditarProduto",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.sendRequest({\r",
+							"    url: 'https://serverest.dev/login',\r",
+							"    method: 'POST',\r",
+							"    header: {\r",
+							"        'content-type':'application/json'\r",
+							"    },\r",
+							"    body: {\r",
+							"        mode: 'raw',\r",
+							"        raw: JSON.stringify({ \r",
+							"            email: pm.variables.get(\"email\"),\r",
+							"            password: 'teste123!@'})\r",
+							"    }\r",
+							"}, function (err, res) {\r",
+							"    token = res.json().authorization;\r",
+							"    pm.environment.set(\"token\", token.slice(7));\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Cadastrado com sucesso -  200\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{token}}"
+					}
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"nome\": \"Logitech MX Vertical {{$randomCompanyName}}\",\r\n  \"preco\": \"470\",\r\n  \"descricao\": \"Mouse\",\r\n  \"quantidade\": \"381\"\r\n} ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://serverest.dev/produtos/{{_id}}",
+					"protocol": "https",
+					"host": [
+						"serverest",
+						"dev"
+					],
+					"path": [
+						"produtos",
+						"{{_id}}"
+					],
+					"query": [
+						{
+							"key": "_id",
+							"value": "BeeJh5lz3k6kSIzA",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ListarUsuarios",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Cadastrado com sucesso -  200\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "https://serverest.dev/usuarios"
+			},
+			"response": []
+		},
+		{
+			"name": "ListarProdutos",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Cadastrado com sucesso -  200\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "https://serverest.dev/produtos"
+			},
+			"response": []
+		}
+	]
+}
